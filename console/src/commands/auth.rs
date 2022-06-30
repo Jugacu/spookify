@@ -41,7 +41,7 @@ impl TokenServer {
         self.token.to_owned()
     }
 
-    async fn get_new_token(&mut self) -> &str {
+    async fn get_new_token(&mut self) -> String {
         let (tx, mut rx): (Sender<&str>, Receiver<&str>) = mpsc::channel(1);
         let channel_state = web::Data::new(tx);
 
@@ -66,14 +66,15 @@ impl TokenServer {
 
         let token = rx.recv()
             .await
-            .expect("Could not retrieve token from request");
+            .expect("Could not retrieve token from request")
+            .to_string();
 
-        self.token = token.to_string().into();
+        self.token = token.clone().into();
 
         // Who cares about this server lol
         handle.stop(false).await;
 
-        token
+        token.to_string()
     }
 }
 
