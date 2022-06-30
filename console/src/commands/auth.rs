@@ -71,8 +71,9 @@ impl TokenServer {
 
         self.token = token.clone().into();
 
-        // Who cares about this server lol
-        handle.stop(false).await;
+        tokio::task::spawn(async move {
+            handle.stop(true).await;
+        });
 
         token.to_string()
     }
