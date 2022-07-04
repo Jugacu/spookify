@@ -14,7 +14,7 @@ async fn test_token_server() {
 
     let client = Client::new();
 
-    let uri = format!("http://127.0.0.1:8080/?code={}", test_code).parse().unwrap();
+    let uri = format!("http://{}/?code={}", addr.to_string(), test_code).parse().unwrap();
 
     client.get(uri).await.unwrap();
 
