@@ -13,9 +13,9 @@ impl Command for Authenticate {
     }
 
     async fn run(&mut self) -> bool {
-        let mut server = TokenServer::new();
+        let mut server = TokenServer::new("127.0.0.1:8080");
 
-        let token = server.get_new_token().await;
+        let token = server.get_new_token().await.unwrap();
 
         println!("We got a hit! {}", token);
 
