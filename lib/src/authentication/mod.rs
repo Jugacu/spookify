@@ -45,7 +45,7 @@ impl<A> TokenServer<A>
         }
     }
 
-    pub async fn start(
+    pub (crate) async fn start(
         &mut self,
     ) -> Result<(ServerHandle, Receiver<String>), Box<dyn std::error::Error>> {
         let addr = self.addr.to_socket_addrs().unwrap().next().unwrap();
