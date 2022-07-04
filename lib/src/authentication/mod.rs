@@ -1,21 +1,27 @@
-use actix_web::{App, HttpResponse, HttpServer, web, HttpRequest};
+use std::net::ToSocketAddrs;
+
+use actix_web::{App, HttpResponse, HttpServer, web};
+use actix_web::dev::ServerHandle;
 
 use tokio::sync::{mpsc};
-use tokio::sync::mpsc::Receiver;
-use tokio::sync::mpsc::Sender;
+use tokio::sync::mpsc::{Receiver, Sender};
 
+use serde::Deserialize;
+
+#[derive(Deserialize)]
+struct AuthReqParams {
+    code: String,
+}
 
 async fn process_request(
-    req: HttpRequest,
-    state: web::Data<Sender<&str>>,
-) -> HttpResponse  {
-    // TODO change this for the real token
-
-    match state.send("test").await {
+    state: web::Data<Sender<String>>,
+    params: web::Query<AuthReqParams>,
+) -> HttpResponse {
+    match state.send(params.code.clone()).await {
         Ok(_) => {
             HttpResponse::Ok()
                 .body("You may close this window now.")
-        },
+        }
         Err(_) => {
             HttpResponse::BadRequest()
                 .into()
@@ -23,23 +29,29 @@ async fn process_request(
     }
 }
 
-pub struct TokenServer {
-    token: Option<String>,
+pub struct TokenServer<A: ToSocketAddrs> {
+    addr: A,
 }
 
-impl TokenServer {
-    pub fn new() -> TokenServer {
+impl<A> TokenServer<A>
+    where
+        A: ToSocketAddrs,
+{
+    pub fn new(
+        addr: A
+    ) -> TokenServer<A> {
         TokenServer {
-            token: None
+            addr: addr,
         }
     }
 
-    fn get_current_token(&self) -> Option<String> {
-        self.token.to_owned()
-    }
+    pub async fn start(
+        &mut self,
+    ) -> Result<(ServerHandle, Receiver<String>), Box<dyn std::error::Error>> {
+        let addr = self.addr.to_socket_addrs().unwrap().next().unwrap();
 
-    pub async fn get_new_token(&mut self) -> String {
-        let (tx, mut rx): (Sender<&str>, Receiver<&str>) = mpsc::channel(1);
+        let (tx, rx): (Sender<String>, Receiver<String>) = mpsc::channel(1);
+
         let channel_state = web::Data::new(tx);
 
         let server = HttpServer::new(move || {
@@ -49,29 +61,33 @@ impl TokenServer {
                 )
                 .route("/", web::get().to(process_request))
         })
-            .bind(("127.0.0.1", 8080))
-            .expect("Unable to bind server ports")
+            .bind(addr)?
             .run();
 
         let handle = server.handle();
 
-        tokio::task::spawn(async {
-            println!("Starting http server on http://localhost:8080");
+        let addr_str = addr.to_string();
+
+        tokio::task::spawn(async move {
+            println!("Listening on http://{}", addr_str);
 
             server.await
         });
 
+        Ok((handle, rx))
+    }
+
+    pub async fn get_new_token(&mut self) -> Result<String, Box<dyn std::error::Error>> {
+        let (handle, mut rx) = self.start().await?;
+
         let token = rx.recv()
             .await
-            .expect("Could not retrieve token from request")
-            .to_string();
-
-        self.token = token.clone().into();
+            .expect("Could not retrieve token from request");
 
         tokio::task::spawn(async move {
             handle.stop(true).await;
         });
 
-        token.to_string()
+        Ok(token)
     }
 }
