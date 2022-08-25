@@ -52,12 +52,14 @@ fn load_config() -> Config {
 }
 
 pub fn write_config(config: Config) -> Result<(), WriteCfgError> {
-    let config_path = get_config_path();
-
     let yaml = serde_yaml::to_string(&config)
         .map_err(|err| WriteCfgError::Serde(err))?;
 
+    let config_path = get_config_path();
+
+    // Gets the parent dir so we can create it if the directory does not exist
     let config_dir = config_path.parent().unwrap();
+
     fs::create_dir_all(config_dir).unwrap();
 
     fs::write(config_path, yaml).map_err(|e| WriteCfgError::Io(e))
