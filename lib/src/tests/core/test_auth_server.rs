@@ -1,4 +1,4 @@
-use crate::authentication::TokenServer;
+use crate::core::auth_server::Server;
 
 use hyper::Client;
 
@@ -8,7 +8,7 @@ async fn test_token_server() {
 
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 8080));
 
-    let mut token_server = TokenServer::new(addr);
+    let mut token_server = Server::new(addr);
 
     let (handle, mut rx) = token_server.start().await.unwrap();
 

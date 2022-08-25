@@ -29,23 +29,23 @@ async fn process_request(
     }
 }
 
-pub struct TokenServer<A: ToSocketAddrs> {
+pub struct Server<A: ToSocketAddrs> {
     addr: A,
 }
 
-impl<A> TokenServer<A>
+impl<A> Server<A>
     where
         A: ToSocketAddrs,
 {
     pub fn new(
         addr: A
-    ) -> TokenServer<A> {
-        TokenServer {
+    ) -> Server<A> {
+        Server {
             addr: addr,
         }
     }
 
-    pub (crate) async fn start(
+    pub(crate) async fn start(
         &mut self,
     ) -> Result<(ServerHandle, Receiver<String>), Box<dyn std::error::Error>> {
         let addr = self.addr.to_socket_addrs().unwrap().next().unwrap();
