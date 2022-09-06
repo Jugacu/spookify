@@ -11,6 +11,8 @@ fn test_config_write() {
         client_secret: "".to_string()
     };
 
-    Config::write(config)
-        .expect("Failed to write config file")
+    Config::write(config.clone())
+        .expect("Failed to write config file");
+
+    assert_eq!(Some(config), *Config::global());
 }

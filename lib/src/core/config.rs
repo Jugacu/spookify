@@ -12,13 +12,13 @@ pub enum WriteCfgError {
     Io(std::io::Error),
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Tokens {
     pub access_token: String,
     pub refresh_token: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Config {
     pub tokens: Option<Tokens>,
     pub client_id: String,
@@ -74,6 +74,10 @@ impl Config {
     }
 
     pub fn write(cfg: Config) -> Result<(), WriteCfgError> {
+        let mut current_config = Config::global();
+
+        *current_config = cfg.clone().into();
+
         write_config(cfg.into())
     }
 }
