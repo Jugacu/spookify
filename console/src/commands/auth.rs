@@ -22,6 +22,8 @@ impl Command for Authenticate {
             match &*global_config {
                 Some(cfg) => cfg.to_owned(),
                 None => {
+                    drop(global_config); // TODO: Find a workaround :(
+
                     let client_id = ask("Please enter your client id:");
                     let client_secret = ask("Please enter your client secret:");
 
