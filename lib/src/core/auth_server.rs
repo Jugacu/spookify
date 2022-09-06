@@ -69,8 +69,6 @@ impl<A> Server<A>
         let addr_str = addr.to_string();
 
         tokio::task::spawn(async move {
-            println!("Listening on http://{}", addr_str);
-
             server.await
         });
 

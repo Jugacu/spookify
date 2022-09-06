@@ -1,4 +1,4 @@
-use crate::core::config::{Config, Tokens, write_config};
+use crate::core::config::{Config, Tokens};
 
 #[test]
 fn test_config_write() {
@@ -6,9 +6,11 @@ fn test_config_write() {
         tokens: Some(Tokens {
             refresh_token: "test_refresh".to_string(),
             access_token: "test_access".to_string(),
-        })
+        }),
+        client_id: "".to_string(),
+        client_secret: "".to_string()
     };
 
-    write_config(config)
+    Config::write(config)
         .expect("Failed to write config file")
 }
