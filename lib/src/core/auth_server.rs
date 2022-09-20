@@ -75,7 +75,7 @@ impl<A> Server<A>
         Ok((handle, rx))
     }
 
-    pub async fn get_new_token(&mut self) -> Result<String, Box<dyn std::error::Error>> {
+    pub async fn get_new_code(&mut self) -> Result<String, Box<dyn std::error::Error>> {
         let (handle, mut rx) = self.start().await?;
 
         let token = rx.recv()
