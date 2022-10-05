@@ -47,13 +47,20 @@ impl Authenticate {
 
     async fn authorize(&self, config: Config) -> bool {
         let auth = Authorization::new(
-            config.client_id,
-            config.client_secret
+            config.client_id.clone(),
+            config.client_secret.clone()
         );
 
         println!("Please go to {} to authorize this CLI", auth.authorization_url());
 
-        auth.authorize().await;
+        let token = auth.authorize().await;
+
+        let mut new_config = config.clone();
+        new_config.spotify_token = Some(token);
+
+        Config::write(new_config).unwrap();
+
+        println!("Client authorization success! Config saved at {}", get_config_path().to_string_lossy());
 
         true
     }
