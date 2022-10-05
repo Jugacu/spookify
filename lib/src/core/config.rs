@@ -13,15 +13,25 @@ pub enum WriteCfgError {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct Tokens {
+pub struct SpotifyToken {
+    /// An access token that can be provided in subsequent calls, for example to Spotify Web API services.
     pub access_token: String,
+    /// How the access token may be used.
+    pub token_type: String,
+    /// The time period (in seconds) for which the access token is valid.
+    pub expires_in: u32,
+    /// The timestamp for which the token will expire at.
+    pub expires_at: Option<u128>,
+    /// A token that can be sent to the Spotify Accounts service in place of an authorization code to request a new ``access_token``.
     pub refresh_token: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Config {
-    pub tokens: Option<Tokens>,
+    pub spotify_token: Option<SpotifyToken>,
+    /// The spotify app client id
     pub client_id: String,
+    /// The spotify app client secret
     pub client_secret: String,
 }
 
@@ -65,7 +75,7 @@ impl Config {
         Config {
             client_id,
             client_secret,
-            tokens: None
+            spotify_token: None
         }
     }
 

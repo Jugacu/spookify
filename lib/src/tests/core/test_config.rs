@@ -1,9 +1,9 @@
-use crate::core::config::{Config, Tokens};
+use crate::core::config::{Config, SpotifyToken};
 
 #[test]
 fn test_config_write() {
     let config: Config = Config {
-        tokens: Some(Tokens {
+        spotify_token: Some(SpotifyToken {
             refresh_token: "test_refresh".to_string(),
             access_token: "test_access".to_string(),
         }),

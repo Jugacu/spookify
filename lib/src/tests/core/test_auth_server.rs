@@ -1,7 +1,5 @@
 use crate::core::auth_server::Server;
 
-use hyper::Client;
-
 #[tokio::test]
 async fn test_token_server() {
     let test_code = "aaaaaaaaaaaaabbbbbbbccccccccccc";
@@ -12,11 +10,9 @@ async fn test_token_server() {
 
     let (handle, mut rx) = token_server.start().await.unwrap();
 
-    let client = Client::new();
+    let uri: String = format!("http://{}/?code={}", addr.to_string(), test_code).parse().unwrap();
 
-    let uri = format!("http://{}/?code={}", addr.to_string(), test_code).parse().unwrap();
-
-    client.get(uri).await.unwrap();
+    reqwest::get(uri).await.unwrap();
 
     let code = rx.recv().await
         .unwrap();
